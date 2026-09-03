@@ -32,6 +32,33 @@
 
 ---
 
+## Table of Contents
+
+- [About](#about)
+- [Features](#features)
+- [Installation](#installation)
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [CLI Options](#cli-options)
+- [Interactive Commands](#interactive-commands)
+- [AI Providers](#ai-providers)
+- [Configuration](#configuration)
+- [Tools](#tools)
+- [Agent Architecture](#agent-architecture)
+- [Project Structure](#project-structure)
+- [Security](#security)
+- [Development](#development)
+- [Extending PurpleCli](#extending-purplecli)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [Bug Reports](#bug-reports)
+- [License](#license)
+- [Status](#status)
+- [Credits](#credits)
+
+---
+
 ## About
 
 PurpleCli is a lightweight AI coding agent that runs directly inside your terminal.
@@ -42,7 +69,7 @@ The agent can inspect files, read source code, create and modify files, delete f
 
 You tell it what you want.
 
-It figures out what it needs to inspect, which tools it needs to use, and how to complete the task.
+PurpleCli determines what it needs to inspect, which tools it needs to use, and how to complete the task.
 
 ```text
 You
