@@ -2,7 +2,7 @@
 
 set -e
 
-REPO="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main"
+REPO="https://raw.githubusercontent.com/n0tpurplx/Purplecli/main"
 INSTALL_DIR="$HOME/.local/bin"
 
 echo "Installing PurpleCli..."
