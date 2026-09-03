@@ -1,4 +1,4 @@
-Contributing to PurpleCli
+# Contributing to PurpleCli
 
 Thank you for considering contributing to PurpleCli.
 
