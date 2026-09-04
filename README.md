@@ -165,6 +165,12 @@ AI continues
 Final response
 ```
 
+### Plan Mode
+
+PurpleCli includes a plan mode that instructs the AI to create a detailed plan before taking any actions. This can be useful for complex tasks where you want to review the approach before execution.
+
+You can toggle plan mode at any time with the `/plan` command, or start PurpleCli with plan mode enabled using the `--plan` flag.
+
 ### Lightweight
 
 PurpleCli is built around a relatively small Python codebase.
@@ -360,6 +366,7 @@ PurpleCli currently provides the following command-line options:
 | `-h`, `--help` | Show the help message |
 | `-v`, `--version` | Show the PurpleCli version |
 | `-S`, `--setup` | Configure an AI provider and API key |
+| `--plan` | Start with plan mode enabled |
 
 ### Help
 
@@ -398,6 +405,7 @@ Inside PurpleCli, the following commands are currently available:
 | `/help` | Show available interactive commands |
 | `/exit` | Exit PurpleCli |
 | `/quit` | Exit PurpleCli |
+| `/plan` | Toggle plan mode |
 
 ### Exit
 
@@ -414,6 +422,12 @@ or:
 ```
 
 You can also exit using `Ctrl+C` or EOF input.
+
+### Plan Mode
+
+PurpleCli includes a plan mode that instructs the AI to create a detailed plan before taking any actions. This can be useful for complex tasks where you want to review the approach before execution.
+
+You can toggle plan mode at any time with the `/plan` command, or start PurpleCli with plan mode enabled using the `--plan` flag.
 
 ---
 

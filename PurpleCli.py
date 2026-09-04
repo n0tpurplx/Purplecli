@@ -347,10 +347,15 @@ def execute_tool(name, arguments):
 def agent(user_message, config):
     global plan_mode
     
+    # Build system prompt with optional plan mode instruction
+    system_content = SYSTEM_PROMPT
+    if plan_mode:
+        system_content += "\n\nPLAN MODE: Before taking any actions, you must first create a detailed plan. Output the plan clearly, then proceed step by step."
+    
     messages = [
         {
             "role": "system",
-            "content": SYSTEM_PROMPT
+            "content": system_content
         },
         {
             "role": "user",
@@ -425,6 +430,12 @@ def main():
         action="store_true",
         help="Configure your AI provider and API key."
     )
+    
+    parser.add_argument(
+        "--plan",
+        action="store_true",
+        help="Start with plan mode enabled."
+    )
 
     args = parser.parse_args()
 
@@ -442,14 +453,21 @@ def main():
         print()
         return
 
+    # Set plan mode from CLI flag
+    if args.plan:
+        plan_mode = True
+
     print(f"PurpleCli {VERSION}")
+    if plan_mode:
+        print("Plan mode: ON")
     print(f"Provider: {config['provider']}")
     print("Type /help for commands. Type /exit to quit.")
     print()
 
     while True:
         try:
-            user_input = input("> ").strip()
+            prompt = "[PLAN] > " if plan_mode else "> "
+            user_input = input(prompt).strip()
         except (KeyboardInterrupt, EOFError):
             print()
             break
@@ -464,7 +482,7 @@ def main():
             print()
             print("/help   Show this help")
             print("/exit   Exit PurpleCli")
-            print("/plan   Toggle plan mode (shows [Plan] prefix when active)")
+            print("/plan   Toggle plan mode")
             print()
             continue
 
@@ -480,7 +498,7 @@ def main():
                 print()
             continue
 
-        agent(user_input, config)
+        agent(user_message, config)
 
 
 if __name__ == "__main__":
