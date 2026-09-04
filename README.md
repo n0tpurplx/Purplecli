@@ -36,6 +36,7 @@
 
 - [About](#about)
 - [Features](#features)
+- [429 Note](#429-note)
 - [Installation](#installation)
 - [Requirements](#requirements)
 - [Getting Started](#getting-started)
