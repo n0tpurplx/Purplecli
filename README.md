@@ -186,6 +186,18 @@ There is no web dashboard required to use the core agent.
 
 ---
 
+## 429 Note
+
+You might experience an error like:
+
+```bash
+  API Error: 429 Client error: to many requests for url:
+```
+
+Please do NOT report this as a bug. receiving this error means that you are being rate limited or that your daily/weekly usage limit or you RPM (Requests per minute) have been maxed out. This is NOT a bug this is simply AI providers limiting how much you can use their tools.
+
+---
+
 ## Installation
 
 ### Installation Notes
