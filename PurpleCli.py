@@ -4,10 +4,9 @@ import argparse
 import json
 import os
 import subprocess
-import sys
 from pathlib import Path
 
-VERSION = "0.1.5"
+VERSION = "0.1.6"
 
 CONFIG_DIR = Path.home() / ".purplecli"
 CONFIG_FILE = CONFIG_DIR / "config.json"
@@ -32,7 +31,6 @@ Rules:
 - Work inside the user's current working directory.
 """
 
-# Plan mode state
 plan_mode = False
 
 
@@ -67,10 +65,11 @@ def setup():
     print("Choose your AI provider:")
     print("1. OpenRouter")
     print("2. Google Gemini")
+    print("3. OpenAI")
     print()
 
     while True:
-        choice = input("Provider [1/2]: ").strip()
+        choice = input("Provider [1/2/3]: ").strip()
 
         if choice == "1":
             provider = "openrouter"
@@ -80,14 +79,20 @@ def setup():
             provider = "gemini"
             break
 
-        print("Please choose 1 or 2.")
+        if choice == "3":
+            provider = "openai"
+            break
+
+        print("Please choose 1, 2, or 3.")
 
     print()
 
     if provider == "openrouter":
         key = input("OpenRouter API key: ").strip()
-    else:
+    elif provider == "gemini":
         key = input("Google Gemini API key: ").strip()
+    else:
+        key = input("OpenAI API key: ").strip()
 
     if not key:
         print("No API key entered.")
@@ -303,8 +308,6 @@ def openrouter_request(messages, config):
 def gemini_request(messages, config):
     import requests
 
-    # Gemini's OpenAI-compatible endpoint lets us use the
-    # same agent/tool architecture as OpenRouter.
     response = requests.post(
         "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
         headers={
@@ -324,19 +327,56 @@ def gemini_request(messages, config):
     return response.json()
 
 
+def openai_request(messages, config):
+    import requests
+
+    response = requests.post(
+        "https://api.openai.com/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {config['api_key']}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "model": config.get("model", "gpt-5.6"),
+            "messages": messages,
+            "tools": tool_definitions(),
+            "tool_choice": "auto"
+        },
+        timeout=120
+    )
+
+    response.raise_for_status()
+    return response.json()
+
+
 def ask_ai(messages, config):
-    if config["provider"] == "openrouter":
+    provider = config.get("provider")
+
+    if provider == "openrouter":
         return openrouter_request(messages, config)
 
-    if config["provider"] == "gemini":
+    if provider == "gemini":
         return gemini_request(messages, config)
 
-    raise RuntimeError("Unknown provider.")
+    if provider == "openai":
+        return openai_request(messages, config)
+
+    raise RuntimeError(f"Unknown provider: {provider}")
 
 
 def execute_tool(name, arguments):
     if name not in TOOLS:
         return f"Unknown tool: {name}"
+
+    if plan_mode and name in (
+        "write_file",
+        "delete_file",
+        "run_command"
+    ):
+        return (
+            f"Tool '{name}' is blocked because plan mode is active. "
+            "Plan mode is read-only."
+        )
 
     try:
         return TOOLS[name](**arguments)
@@ -346,12 +386,26 @@ def execute_tool(name, arguments):
 
 def agent(user_message, config):
     global plan_mode
-    
-    # Build system prompt with optional plan mode instruction
+
     system_content = SYSTEM_PROMPT
+
     if plan_mode:
-        system_content += "\n\nPLAN MODE: Before taking any actions, you must first create a detailed plan. Output the plan clearly, then proceed step by step."
-    
+        system_content += """
+        
+PLAN MODE: You are in read-only planning mode.
+
+You may inspect files using list_files and read_file.
+
+You MUST NOT:
+- modify files
+- delete files
+- execute shell commands
+- make changes to the user's project
+
+Create a detailed implementation plan based on the files you inspect.
+Do not attempt to perform the implementation.
+"""
+
     messages = [
         {
             "role": "system",
@@ -370,8 +424,12 @@ def agent(user_message, config):
             print(f"\nAPI error: {e}")
             return
 
-        choice = response["choices"][0]
-        message = choice["message"]
+        try:
+            choice = response["choices"][0]
+            message = choice["message"]
+        except (KeyError, IndexError, TypeError):
+            print("\nAPI error: Invalid response from provider.")
+            return
 
         tool_calls = message.get("tool_calls")
 
@@ -379,11 +437,14 @@ def agent(user_message, config):
 
         if not tool_calls:
             content = message.get("content", "")
+
             print()
+
             if plan_mode:
                 print(f"[Plan] PurpleCli: {content}")
             else:
                 print(f"PurpleCli: {content}")
+
             print()
             return
 
@@ -393,10 +454,12 @@ def agent(user_message, config):
 
             try:
                 arguments = json.loads(function["arguments"])
-            except json.JSONDecodeError:
+            except (json.JSONDecodeError, TypeError):
                 arguments = {}
 
-            print(f"→ {name}({', '.join(arguments.keys())})")
+            print(
+                f"→ {name}({', '.join(arguments.keys())})"
+            )
 
             result = execute_tool(name, arguments)
 
@@ -411,7 +474,7 @@ def agent(user_message, config):
 
 def main():
     global plan_mode
-    
+
     parser = argparse.ArgumentParser(
         prog="PurpleCli",
         description="PurpleCli - a lightweight AI coding agent."
@@ -430,7 +493,7 @@ def main():
         action="store_true",
         help="Configure your AI provider and API key."
     )
-    
+
     parser.add_argument(
         "--plan",
         action="store_true",
@@ -453,13 +516,14 @@ def main():
         print()
         return
 
-    # Set plan mode from CLI flag
     if args.plan:
         plan_mode = True
 
     print(f"PurpleCli {VERSION}")
+
     if plan_mode:
         print("Plan mode: ON")
+
     print(f"Provider: {config['provider']}")
     print("Type /help for commands. Type /exit to quit.")
     print()
@@ -468,6 +532,7 @@ def main():
         try:
             prompt = "[PLAN] > " if plan_mode else "> "
             user_input = input(prompt).strip()
+
         except (KeyboardInterrupt, EOFError):
             print()
             break
@@ -488,14 +553,19 @@ def main():
 
         if user_input == "/plan":
             plan_mode = not plan_mode
+
             if plan_mode:
                 print()
-                print("Plan mode activated. Run /plan again to end plan mode.")
+                print(
+                    "Plan mode activated. "
+                    "Run /plan again to end plan mode."
+                )
                 print()
             else:
                 print()
                 print("Plan mode deactivated.")
                 print()
+
             continue
 
         agent(user_input, config)
