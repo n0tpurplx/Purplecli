@@ -187,6 +187,16 @@ There is no web dashboard required to use the core agent.
 
 ## Installation
 
+### Installation Notes
+
+You will need to have "requests" installed, as the installer currently does not do this for you!
+
+Install it using:
+
+```bash
+  pip install requests
+```
+
 ### Quick Install
 
 Install PurpleCli using the installation script:
