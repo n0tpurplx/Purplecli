@@ -498,7 +498,7 @@ def main():
                 print()
             continue
 
-        agent(user_message, config)
+        agent(user_input, config)
 
 
 if __name__ == "__main__":
