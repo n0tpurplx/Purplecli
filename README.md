@@ -273,7 +273,7 @@ PurpleCli
 You should see something similar to:
 
 ```text
-PurpleCli 0.1.0
+PurpleCli 0.1.5
 Provider: openrouter
 Type /help for commands. Type /exit to quit.
 
@@ -376,7 +376,7 @@ PurpleCli --version
 Example:
 
 ```text
-PurpleCli 0.1.0
+PurpleCli 0.1.5
 ```
 
 ### Setup

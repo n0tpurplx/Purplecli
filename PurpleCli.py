@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-VERSION = "0.1.0"
+VERSION = "0.1.5"
 
 CONFIG_DIR = Path.home() / ".purplecli"
 CONFIG_FILE = CONFIG_DIR / "config.json"
@@ -31,6 +31,9 @@ Rules:
 - When you need to modify files, use the provided tools.
 - Work inside the user's current working directory.
 """
+
+# Plan mode state
+plan_mode = False
 
 
 def load_config():
@@ -342,6 +345,8 @@ def execute_tool(name, arguments):
 
 
 def agent(user_message, config):
+    global plan_mode
+    
     messages = [
         {
             "role": "system",
@@ -370,7 +375,10 @@ def agent(user_message, config):
         if not tool_calls:
             content = message.get("content", "")
             print()
-            print(content)
+            if plan_mode:
+                print(f"[Plan] PurpleCli: {content}")
+            else:
+                print(f"PurpleCli: {content}")
             print()
             return
 
@@ -397,6 +405,8 @@ def agent(user_message, config):
 
 
 def main():
+    global plan_mode
+    
     parser = argparse.ArgumentParser(
         prog="PurpleCli",
         description="PurpleCli - a lightweight AI coding agent."
@@ -454,7 +464,20 @@ def main():
             print()
             print("/help   Show this help")
             print("/exit   Exit PurpleCli")
+            print("/plan   Toggle plan mode (shows [Plan] prefix when active)")
             print()
+            continue
+
+        if user_input == "/plan":
+            plan_mode = not plan_mode
+            if plan_mode:
+                print()
+                print("Plan mode activated. Run /plan again to end plan mode.")
+                print()
+            else:
+                print()
+                print("Plan mode deactivated.")
+                print()
             continue
 
         agent(user_input, config)
