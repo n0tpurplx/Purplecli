@@ -15,7 +15,6 @@
     <img src="https://img.shields.io/badge/License-PAL%20v1.0-7C3AED?style=for-the-badge" alt="PAL v1.0">
   </a>
   <img src="https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/Status-Early%20Development-8A2BE2?style=for-the-badge" alt="Status">
 </p>
 
 <p align="center">
