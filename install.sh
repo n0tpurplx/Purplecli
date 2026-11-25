@@ -50,6 +50,8 @@ case ":$PATH:" in
         ;;
 esac
 
+export PATH="$INSTALL_DIR:$PATH"
+
 echo ""
 echo "✓ PurpleCli installed."
 echo "✓ OpenRouter supported."
