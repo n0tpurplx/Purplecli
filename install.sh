@@ -50,6 +50,8 @@ case ":$PATH:" in
         ;;
 esac
 
+export PATH="$INSTALL_DIR:$PATH"
+
 echo ""
 echo "✓ PurpleCli installed."
 echo "You may need to reboot your shell for it to recognize PurpleCli."
