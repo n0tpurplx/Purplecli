@@ -52,9 +52,7 @@ esac
 
 echo ""
 echo "✓ PurpleCli installed."
-echo "✓ OpenRouter supported."
-echo "✓ Google Gemini supported."
-echo "✓ OpenAI supported."
+echo "You may need to reboot your shell for it to recognize PurpleCli."
 echo ""
 echo "Run:"
 echo "  PurpleCli --setup"
